@@ -1,0 +1,62 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>co3site&#39;s Blog on co3site&#39;s Blog</title>
+    <link>https://co3site.github.io/</link>
+    <description>Recent content in co3site&#39;s Blog on co3site&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 15 May 2019 23:19:13 +0800</lastBuildDate>
+    <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Tools</title>
+      <link>https://co3site.github.io/tools/</link>
+      <pubDate>Wed, 15 May 2019 23:19:13 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/tools/</guid>
+      <description>
+
+&lt;blockquote&gt;
+&lt;p&gt;工欲善其事必先利其器&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&#34;利器集锦&#34;&gt;利器集锦&lt;/h1&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Draft</title>
+      <link>https://co3site.github.io/2019/draft/</link>
+      <pubDate>Wed, 15 May 2019 22:56:08 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/2019/draft/</guid>
+      <description>
+
+&lt;h1 id=&#34;开始用-blog-来记录生活&#34;&gt;开始用 Blog 来记录生活&lt;/h1&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://co3site.github.io/about/</link>
+      <pubDate>Wed, 15 May 2019 22:53:12 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/about/</guid>
+      <description>&lt;p&gt;Hugo is the &lt;strong&gt;world’s fastest framework for building websites&lt;/strong&gt;. It is written in Go.&lt;/p&gt;
+
+&lt;p&gt;It makes use of a variety of open source projects including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/russross/blackfriday&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;https://github.com/russross/blackfriday&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/alecthomas/chroma&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;https://github.com/alecthomas/chroma&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/muesli/smartcrop&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;https://github.com/muesli/smartcrop&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/cobra&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;https://github.com/spf13/cobra&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/viper&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;https://github.com/spf13/viper&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Learn more and contribute on &lt;a href=&#34;https://github.com/gohugoio&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

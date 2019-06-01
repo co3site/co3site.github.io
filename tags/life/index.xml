@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>life on co3site&#39;s Blog</title>
+    <link>https://co3site.github.io/tags/life/</link>
+    <description>Recent content in life on co3site&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 01 Jun 2019 22:27:16 +0800</lastBuildDate>
+    
+	<atom:link href="https://co3site.github.io/tags/life/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>New</title>
+      <link>https://co3site.github.io/2019/new/</link>
+      <pubDate>Sat, 01 Jun 2019 22:27:16 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/2019/new/</guid>
+      <description>When you are about to give up, think of that one reason why you wanted to start. &amp;ndash;Elon Musk 重拾博客 2019年6月1日，国际儿童节。从毕业到现在差不多有一年了，经历了很多，感悟了很多，生活虽残酷</description>
+    </item>
+    
+  </channel>
+</rss>

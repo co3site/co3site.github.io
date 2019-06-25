@@ -6,10 +6,19 @@
     <description>Recent content in Posts on co3site&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 01 Jun 2019 22:27:16 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 23 Jun 2019 14:32:21 +0800</lastBuildDate>
     
 	<atom:link href="https://co3site.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Thread</title>
+      <link>https://co3site.github.io/2019/thread/</link>
+      <pubDate>Sun, 23 Jun 2019 14:32:21 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/2019/thread/</guid>
+      <description>线程学习记要 线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。一条线程指的是进程中</description>
+    </item>
     
     <item>
       <title>New</title>

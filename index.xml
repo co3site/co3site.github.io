@@ -45,7 +45,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter){
 HANDLE hThread = ::CreateThread(NULL, 0, ThreadProc, NULL, 0, NULL);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;lpParameter 为线程执行函数的参数，对应执行函数的接收参数，该参数可以是数字，也可以是指向包含其他信息的一个数据结构的指针，执行函数接收后再做相应的处理；dwCreationFlags 为线程创建的调度参数，设置为 0 即创建线程后便立即调度，设置为 CREATE_SUSPENDED 宏（0x00000004）创建后为挂起状态，等待恢复调用；lpThreadId 为创建线程的 ID 名，方便跨进程调用（内核对象都可以根据 ID 名来跨进程调用）。
+&lt;p&gt;lpParameter 为线程执行函数的参数，对应执行函数的接收参数，该参数可以是数字，也可以是指向包含其他信息的一个数据结构的指针，执行函数接收后再做相应的处理；dwCreationFlags 为线程创建的调度参数，设置为 0 即创建线程后便立即调度，设置为 CREATE_SUSPENDED 宏（0x00000004）创建后为挂起状态，等待恢复调用；lpThreadId 为创建线程的 ID 名，方便跨进程调用（内核对象都可以根据 ID 名来跨进程调用）。&lt;br /&gt;
 编码过程，养成好习惯很重要，创建线程后，等待线程结束后，需关闭线程 ( ::CloseHandle(hThread); )，避免程序长期运行造成内核泄露。&lt;/p&gt;
 
 &lt;h2 id=&#34;0x02-线程的控制&#34;&gt;0x02 线程的控制&lt;/h2&gt;
@@ -166,7 +166,7 @@ BOOL GetExitCodeThread(
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;从结构体中清晰可见，CONTEXT 结构中主要保存着直接和 CPU 有关的寄存器信息。其中 ContextFlags 为指定具体进行查询的字段。 可进行查询字段包括：CONTEXT_DEBUG_REGISTERS 调式寄存器、CONTEXT_FLOATING_POINT 浮点寄存器、CONTEXT_SEGMENTS 段寄存器、CONTEXT_INTEGER 通用数据寄存器、CONTEXT_CONTROL 控制寄存器组、CONTEXT_EXTENDED_REGISTERS 扩展寄存器组等，其他也可设置为 CONTEXT_ALL 查询所有字段，CONTEXT_FULL 查询除去 CONTEXT_DEBUG_REGISTERS 调式寄存器其他的所有字段。
+&lt;p&gt;从结构体中清晰可见，CONTEXT 结构中主要保存着直接和 CPU 有关的寄存器信息。其中 ContextFlags 为指定具体进行查询的字段。 可进行查询字段包括：CONTEXT_DEBUG_REGISTERS 调式寄存器、CONTEXT_FLOATING_POINT 浮点寄存器、CONTEXT_SEGMENTS 段寄存器、CONTEXT_INTEGER 通用数据寄存器、CONTEXT_CONTROL 控制寄存器组、CONTEXT_EXTENDED_REGISTERS 扩展寄存器组等，其他也可设置为 CONTEXT_ALL 查询所有字段，CONTEXT_FULL 查询除去 CONTEXT_DEBUG_REGISTERS 调式寄存器其他的所有字段。&lt;br /&gt;
 具体到 CONTEXT 结构的实际运用，可在逆向时对程序进行 HOOK 操作，通过该结构来获取某一线程挂起时操作系统存储的 CONTEXT 结构，修改结构的相关参数（如 EIP），再将修改后的结构体扔给线程，如若修改 EIP 为 Payload 的地址，便可达到对该程序的 HOOK 操作。&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;//手动挂起某一线程					

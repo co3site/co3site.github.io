@@ -34,11 +34,7 @@
 );				
 &lt;/code&gt;&lt;/pre&gt;
 
-<<<<<<< HEAD
 &lt;p&gt;调用 CreateThread 函数来创建线程，返回值为创建线程的句柄。该函数参数 lpThreadAttributes 为创建线程的安全属性（线程为内核对象，创建内核对象的特征属性），通常设置为 NULL；dwStackSize 为创建线程分配的堆栈大小，一般设置为 0，由系统进行分配；lpStartAddress 为线程的执行函数指针，该函数需符合线程的创建规范：&lt;/p&gt;
-=======
-&lt;p&gt;调用 CreateThread 函数来创建线程，返回值为创建线程的句柄。该函数参数 lpThreadAttributes 为创建线程的安全属性（线程为内核对象，创建内核对象的特征属性），通常设置为 NULL；dwStackSize 为创建线程分配的堆栈大小，一般设置为 lpStartAddress 为线程的执行函数指针，该函数需符合线程的创建规范：&lt;/p&gt;
->>>>>>> 4224629f284023983c2f4126975648cde6dc2179
 
 &lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;//线程函数
 DWORD WINAPI ThreadProc(LPVOID lpParameter){
@@ -171,11 +167,7 @@ BOOL GetExitCodeThread(
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;从结构体中清晰可见，CONTEXT 结构中主要保存着直接和 CPU 有关的寄存器信息。其中 ContextFlags 为指定具体进行查询的字段。 可进行查询字段包括：CONTEXT_DEBUG_REGISTERS 调式寄存器、CONTEXT_FLOATING_POINT 浮点寄存器、CONTEXT_SEGMENTS 段寄存器、CONTEXT_INTEGER 通用数据寄存器、CONTEXT_CONTROL 控制寄存器组、CONTEXT_EXTENDED_REGISTERS 扩展寄存器组等，其他也可设置为 CONTEXT_ALL 查询所有字段，CONTEXT_FULL 查询除去 CONTEXT_DEBUG_REGISTERS 调式寄存器其他的所有字段。
-<<<<<<< HEAD
 具体到 CONTEXT 结构的实际运用，可在逆向时对程序进行 HOOK 操作，通过该结构来获取某一线程挂起时操作系统存储的 CONTEXT 结构，修改结构的相关参数（如 EIP），再将修改后的结构体扔给线程，如若修改 EIP 为 Payload 的地址，便可达到对该程序的 HOOK 操作。&lt;/p&gt;
-=======
-具体到 CONTEXT 结构的具体运用，可在逆向时对程序进行 HOOK 操作，通过该结构来获取某一线程挂起操作系统存储的 CONTEXT 结构，修改结构的相关参数（如 EIP），再将修改后的结构体扔给线程，如若修改 EIP 为 Payload 的地址，便达到对该程序的 HOOK 操作。&lt;/p&gt;
->>>>>>> 4224629f284023983c2f4126975648cde6dc2179
 
 &lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;//手动挂起某一线程					
 ::SuspendThread(hThread);
@@ -234,11 +226,7 @@ int main(){
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-<<<<<<< HEAD
 &lt;p&gt;如上程序所示，在主函数中创建了两个线程，执行的操作都是对全局共有的计数变量来进行 1000 次 +1 操作，线程执行函数中通过 Sleep(1) 对线程进行耗时操作，在线程执行的生命周期里的任一时间点可能已经到了线程切换的时间。假使切换时间在 Sleep 时间中，此时线程挂起 temp 获取了 cnt 的值存入了 CONTEXT 结构；在下一个线程执行时 temp 就获取了上一线程同样的 cnt 值，待上一线程恢复，CONTEXT　中存储的 cnt　值便已不是实时的 cnt 值，程序最终的计算结果便会发生错误。&lt;br /&gt;
-=======
-&lt;p&gt;如上程序所示，在主函数中创建了两个线程，执行的操作都是对全局共有的计数变量来进行 1000 次 +1 操作，线程执行函数中通过 Sleep(1) 对线程进行耗时操作，在线程执行的生命周期里的任一时间点可能已经到了线程切换的时间。假使切换时间在 Sleep 时间中，此时线程挂起 temp 获取了 cnt 的值存入了 CONTEXT 结构；在下一个线程执行时 temp 就获取了上一线程同样的 cnt 值，待上一线程恢复，CONTEXT　中存储的　cnt　值便已不是实时的　cnt 值，程序最终的计算结果便会发生错误。&lt;br /&gt;
->>>>>>> 4224629f284023983c2f4126975648cde6dc2179
 运行该程序可以发现最终的结果小于 2000，并不是原本程序设计所期望的 2000，在线程中的 cout 输出过程中也会发生中断现象。（结果受具体不同的 CPU 运算速度影响，如若在其他同学 PC 上未发生错误，可调节 Sleep 的时间值以达到计算错误）&lt;/p&gt;
 
 &lt;h2 id=&#34;0x05-线程安全控制&#34;&gt;0x05 线程安全控制&lt;/h2&gt;
@@ -299,11 +287,7 @@ int main(){
 
 &lt;p&gt;2、互斥体（内核对象）&lt;/p&gt;
 
-<<<<<<< HEAD
 &lt;p&gt;互斥体为内核对象，使用方式与临界区大致相同。&lt;/p&gt;
-=======
-&lt;p&gt;互斥体为内核对象，使用方式与临界体大致相同。&lt;/p&gt;
->>>>>>> 4224629f284023983c2f4126975648cde6dc2179
 
 &lt;pre&gt;&lt;code class=&#34;language-C++&#34;&gt;#include &amp;lt;iostream&amp;gt;
 #include &amp;lt;windows.h&amp;gt;

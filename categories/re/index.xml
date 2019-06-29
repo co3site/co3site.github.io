@@ -12,12 +12,12 @@
     
     
     <item>
-      <title>Thread</title>
+      <title>线程学习记要</title>
       <link>https://co3site.github.io/2019/thread/</link>
       <pubDate>Sun, 23 Jun 2019 14:32:21 +0800</pubDate>
       
       <guid>https://co3site.github.io/2019/thread/</guid>
-      <description>线程学习记要 线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。一条线程指的是进程中</description>
+      <description>线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。一条线程指的是进程中一个单一顺序</description>
     </item>
     
   </channel>

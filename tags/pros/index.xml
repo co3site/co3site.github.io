@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>C/C&#43;&#43; on co3site&#39;s Blog</title>
-    <link>https://co3site.github.io/tags/c/c&#43;&#43;/</link>
-    <description>Recent content in C/C&#43;&#43; on co3site&#39;s Blog</description>
+    <title>pros on co3site&#39;s Blog</title>
+    <link>https://co3site.github.io/tags/pros/</link>
+    <description>Recent content in pros on co3site&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Mon, 01 Jul 2019 10:15:30 +0800</lastBuildDate>
     
-	<atom:link href="https://co3site.github.io/tags/c/c++/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://co3site.github.io/tags/pros/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://co3site.github.io/2019/process/</guid>
       <description>0x00 进程简介 进程（Process）：计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位，是操作系统结构的基础。通</description>
-    </item>
-    
-    <item>
-      <title>线程学习记要</title>
-      <link>https://co3site.github.io/2019/thread/</link>
-      <pubDate>Sun, 23 Jun 2019 14:32:21 +0800</pubDate>
-      
-      <guid>https://co3site.github.io/2019/thread/</guid>
-      <description>线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。一条线程指的是进程中一个单一顺序</description>
     </item>
     
   </channel>

@@ -5,8 +5,324 @@
     <description>Recent content in co3site&#39;s Blog on co3site&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 23 Jun 2019 14:32:21 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 01 Jul 2019 10:15:30 +0800</lastBuildDate>
     <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>进程学习记要</title>
+      <link>https://co3site.github.io/2019/process/</link>
+      <pubDate>Mon, 01 Jul 2019 10:15:30 +0800</pubDate>
+      
+      <guid>https://co3site.github.io/2019/process/</guid>
+      <description>
+
+&lt;h2 id=&#34;0x00-进程简介&#34;&gt;0x00 进程简介&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;进程（Process）&lt;/strong&gt;：计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位，是操作系统结构的基础。通俗来讲，进程就是一个虚拟4GB的容器空间（对于Win32环境来讲），所谓虚拟是指并不是真正地占据4GB大小的内存，而是通过映射（Map）的方式使虚拟内存达到4GB。某一.exe可执行文件双击运行时，首先将程序文件拉伸到4GB空间中，对齐方式由FileAlignment拉伸为SectionAlignment（具体可参看PE结构NT头部中的OptionalHeader）。一般来说（WindowsNT 3环可达到3GB），分配的4GB空间中的低2GB（0x00000000 - 0x7FFFFFFF）用于3环使用，具体到前64KB（0x00000000 - 0x0000FFFF）用于存储NULL指针，后面的空间（0x00010000 - 0x7FFFFFFF）用来存储运行程序时所要用到的所有PE文件（包括程序用到的所有的动态链接库等）拉伸后的状态；高2GB（0x80000000 - 0xFFFFFFFF）为0环内核层所使用的空间。&lt;/p&gt;
+
+&lt;h2 id=&#34;0x01-进程跑起跟踪&#34;&gt;0x01 进程跑起跟踪&lt;/h2&gt;
+
+&lt;p&gt;一个进程从你双击其.exe可执行文件起，操作系统到底都做了那些事情来让程序跑起来呢？&lt;br /&gt;
+首先，将exe文件拉伸映射存储到低2G的指定的内存空间中（ImageBase）；
+然后，根据exe的PE文件中导入表的内容依次将其中用到的DLL文件拉伸到指定内存空间，递归DLL文件所用到的DLL文件拉伸到指定内存空间；
+在拉伸存储的过程中，必定会有一些PE文件未存储到其ImageBase的地址（已被前面的PE文件抢先存储了进去），那么该PE文件便会放置于对齐后的还剩余的内存空间中，再进行相应的重定向表修复工作；
+随后，exe可执行文件和各个DLL文件（调用了其他DLL的函数，具有导入表）根据导入表中的INT表修复相应的IAT表；
+最后，为该进程创建主线程（线程见上篇线程学习记要）设定相应的CONTENT结构，将EIP指向该空间中的OEP处便可以开始执行。&lt;br /&gt;
+了解具体的运行过程，我们便可以模拟操作系统来自行拉起进程运行。其中主要运用到了进程、线程的一些知识有：以挂起的形式创建进程，读取、修改主线程的CONTENT结构。
+其他值得一提的是，在Win端桌面和资源管理器中双击exe可执行文件都是由explorer.exe创建进程拉起运行的，explorer进程为其父进程，而结束父进程是不会影响到子进程的运行状态的。&lt;/p&gt;
+
+&lt;h2 id=&#34;0x02-进程创建&#34;&gt;0x02 进程创建&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;BOOL CreateProcess(								
+  LPCTSTR lpApplicationName,                 //程序名（绝对路径/相对路径）								
+  LPTSTR lpCommandLine,                      //命令行参数，前面需要跟一个空格							
+  LPSECURITY_ATTRIBUTES lpProcessAttributes, //进程安全属性								
+  LPSECURITY_ATTRIBUTES lpThreadAttributes,  //线程安全属性								
+  BOOL bInheritHandles,                      //是否继承
+  DWORD dwCreationFlags,                     //进程创建标志
+  LPVOID lpEnvironment,                      //进程环境
+  LPCTSTR lpCurrentDirectory,                //进程工作路径
+  LPSTARTUPINFO lpStartupInfo,               //（IN）启动参数		
+  LPPROCESS_INFORMATION lpProcessInformation //（OUT）进程信息
+);								
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上为创建进程的函数及相关的参数，返回创建的状态，1为创建成功，0为未成功。&lt;br /&gt;
+lpApplicationName：进程程序的程序名，可使用绝对路径、相对路径进行创建；&lt;br /&gt;
+lpCommandLine：创建进程时附带的命令行参数，参数前需带上一个空格进行分割，也可将进程程序直接放入命令行参数中；&lt;br /&gt;
+lpProcessAttributes：指定进程的安全属性的结构体，决定是否被继承，一般设为NULL；&lt;br /&gt;
+lpThreadAttributes：指定该进程所持线程的安全属性结构体，决定是否被继承，一般设为NULL；&lt;br /&gt;
+bInheritHandles：决定是否调用继承，设置为TRUE的话该进程中的每一个可继承的可用句柄都将被子进程继承；&lt;br /&gt;
+dwCreationFlags：创建进程的创建标志，该标志用于说明创建进程的调用模式、状态、优先级等，具体参考MSDN。常用CREATE_NEW_CONSOLE使用新的控制台创建进程，CREATE_SUSPENDED主线程为以挂起状态创建进程；&lt;br /&gt;
+lpEnvironment：创建进程的环境，一般设置为NULL，新进程使用调用进程的环境；&lt;br /&gt;
+lpCurrentDirectory：创建进程的工作路径，可设定为具体的文件夹绝对路径，设定为NULL为使用父进程（调用创建进程的进程）的工作路径；&lt;br /&gt;
+lpStartupInfo：创建进程的启动参数，是一个传入（IN）的结构体，用来说明创建进程主窗体的设定，一般初始化PROCESS_INFORMATION结构体为0后，只需设定其cb成员项为结构体自身大小sizeof(STARTUPINFO);&lt;br /&gt;
+lpProcessInformation：用来接收创建进程的进程相关信息的PROCESS_INFORMATION结构体，该结构体成员如下，其中包括了创建进程的句柄及ID、该进程主线程的句柄及ID；&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;typedef struct _PROCESS_INFORMATION					
+{					
+   HANDLE hProcess;   //进程句柄	
+   HANDLE hThread;    //主线程句柄	
+   DWORD dwProcessId; //进程ID	
+   DWORD dwThreadId;  //线程ID	
+} PROCESS_INFORMATION;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;创建进程示例，调用IE浏览器打开必应：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;windows.h&amp;gt;
+using namespace std;
+
+int main()
+{
+	STARTUPINFO si = {0};
+	si.cb = sizeof(STARTUPINFO);
+	PROCESS_INFORMATION pi;
+	TCHAR cmdline[] = TEXT(&amp;quot; https://bing.com&amp;quot;);  //开始处需带上空格用来隔断
+	BOOL status = ::CreateProcess(TEXT(&amp;quot;C:\\Program Files\\Internet Explorer\\iexplore.exe&amp;quot;), cmdline,NULL,NULL,NULL, 
+					    CREATE_NEW_CONSOLE,NULL,TEXT(&amp;quot;C://&amp;quot;),&amp;amp;si,&amp;amp;pi);
+	if (status)
+	{
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+	}
+	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上方代码也可以全部使用命令行来创建进程，修改代码如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;windows.h&amp;gt;
+using namespace std;
+
+int main()
+{
+	STARTUPINFO si = {0};
+	si.cb = sizeof(STARTUPINFO);
+	PROCESS_INFORMATION pi;
+	TCHAR cmdline[] = TEXT(&amp;quot;C:\\Program Files\\Internet Explorer\\iexplore.exe https://bing.com&amp;quot;); 
+	BOOL status = ::CreateProcess(NULL, cmdline,NULL,NULL,NULL, 
+				      CREATE_NEW_CONSOLE,NULL,TEXT(&amp;quot;C://&amp;quot;),&amp;amp;si,&amp;amp;pi);
+	if (status)
+	{
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+	}
+	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;0x03-内核对象继承&#34;&gt;0x03 内核对象继承&lt;/h2&gt;
+
+&lt;p&gt;在进程的创建方法中，其中参数bInheritHandles用来控制是否调用继承，当该属性设定为TRUE时，则该进程中所有能被继承的内核对象（比如线程中讲到的互斥体、事件、信号量等）都可以被其他子进程所继承。一个内核对象如果希望被继承，在线程中讲到的一般只需设置为NULL的安全属性则有给定具体的SECURITY_ATTRIBUTES结构体，该结构体成员属性如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;typedef struct _SECURITY_ATTRIBUTES {
+    DWORD nLength;                //此结构体大小
+    LPVOID lpSecurityDescriptor;  //默认安全描述，一般设定为NULL
+    BOOL bInheritHandle;          //继承标志，是否被继承
+} SECURITY_ATTRIBUTES, *PSECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如若需要让创建进程的进程句柄以及主线程句柄能够被其他子进程继承，则需配合设置相应的进程安全属性lpProcessAttributes和线程安全属性lpThreadAttributes。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;windows.h&amp;gt;
+using namespace std;
+
+int main()
+{
+	SECURITY_ATTRIBUTES sa_p;
+	sa_p.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa_p.lpSecurityDescriptor = NULL;
+	sa_p.bInheritHandle = TRUE;
+
+	SECURITY_ATTRIBUTES sa_t;
+	sa_t.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa_t.lpSecurityDescriptor = NULL;
+	sa_t.bInheritHandle = TRUE;
+
+	STARTUPINFO si = {0};
+	si.cb = sizeof(STARTUPINFO);
+
+	PROCESS_INFORMATION pi;
+	TCHAR cmdline[] = TEXT(&amp;quot; https://bing.com&amp;quot;);
+	BOOL status = ::CreateProcess(TEXT(&amp;quot;C:\\Program Files\\Internet Explorer\\iexplore.exe&amp;quot;), cmdline, &amp;amp;sa_p, &amp;amp;sa_t,TRUE,
+					   CREATE_NEW_CONSOLE,NULL,TEXT(&amp;quot;C://&amp;quot;),&amp;amp;si,&amp;amp;pi);
+	
+	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上代码创建的进程的线程句柄和进程句柄便可以在其他的子进程来进行接收，进而可以进行相应的控制。这里梳理一下其中的进程关系，我们代码所在的程序运行后也是一个进程，是在该代码中创建的其他进程的父进程，以上代码中创建的调用IE浏览器打开必应的进程为子进程A，如若在代码中再创建一个进程便为子进程B，子进程A可被继承，在子进程B中便可以接收到子进程的进程和线程句柄来达到相应的控制。其他内核对象的继承也和此类似，给定相应的SECURITY_ATTRIBUTES来配置安全属性即可，具体的继承原理，感兴趣的同学可以查看句柄表相关的资料。&lt;/p&gt;
+
+&lt;h2 id=&#34;0x04-结束进程&#34;&gt;0x04 结束进程&lt;/h2&gt;
+
+&lt;p&gt;进程的结束主要可以通过以下3种形式：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;进程自身调用ExitProcess(UINT ExitCode)来结束进程；&lt;/li&gt;
+&lt;li&gt;在其他进程中通过调用TerminateProcess(HANDLE hProcess, UINT ExitCode)来结束相应句柄的进程；&lt;/li&gt;
+&lt;li&gt;通过结束进程中的所有线程来结束进程；
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;一个进程结束后，进程中所有的线程也全部结束；进程使用的堆栈空间将被释放；进程高2G内核对象句柄表中的所有内核对象将全被关闭；该进程对象发出通知信号；操作系统中属于该进程的内核对象使用的计数-1，一段时间后如若不再使用，该内核对象将会被操作系统进行销毁。&lt;/p&gt;
+
+&lt;h2 id=&#34;0x05-以挂起的形式创建进程&#34;&gt;0x05 以挂起的形式创建进程&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;windows.h&amp;gt;
+using namespace std;
+
+int main()
+{
+	STARTUPINFO si = {0};
+	si.cb = sizeof(STARTUPINFO);
+
+	PROCESS_INFORMATION pi;
+
+	//TCHAR cmdline[256] = TEXT(&amp;quot;C:\\Program Files\\Internet Explorer\\iexplore.exe&amp;quot;);
+	BOOL status = CreateProcess(TEXT(&amp;quot;C:\\PETool 1.0.0.5.exe&amp;quot;), NULL, NULL, NULL,NULL,CREATE_SUSPENDED,NULL,NULL,&amp;amp;si,&amp;amp;pi);
+
+	if (status)
+	{
+		//获取创建进程的主线程context
+		CONTEXT context = {0};
+		context.ContextFlags = CONTEXT_ALL;
+		GetThreadContext(pi.hThread, &amp;amp;context);
+
+		//获取程序入口点（ImageBase + OEP）
+		cout &amp;lt;&amp;lt; &amp;quot;Entry Point(OA):&amp;quot; &amp;lt;&amp;lt; hex &amp;lt;&amp;lt; context.Eax &amp;lt;&amp;lt; endl;
+
+		//获取ImageBase	
+		CHAR* baseAddress = (CHAR*)(context.Ebx + 8);
+		DWORD buffer[2] = { 0 };
+		ReadProcessMemory(pi.hProcess, baseAddress, buffer, 4, NULL);
+		cout &amp;lt;&amp;lt; &amp;quot;ImageBase:&amp;quot; &amp;lt;&amp;lt; hex &amp;lt;&amp;lt; *buffer &amp;lt;&amp;lt; endl;
+
+		//恢复进程运行（主线程）
+		ResumeThread(pi.hThread);
+
+		//关闭句柄，计数器-1
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+	}
+	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上代码是以挂起形式创建的进程，dwCreationFlags为CREATE_SUSPENDED，改代码中创建的进程为PETool 1.0.0.5.exe（可替换为其他的EXE可执行程序）。一个进程以挂起的形式创建其本质是该进程创建时他的主线程处于挂起的状态，获取主线程的CONTEXT结构，我们便可以得到进程创建时挂起的相关信息，其中context.Eax为程序的入口点，为程序拉升填充到内存中的地址ImageBase+OEP；context.Ebx为程序的&lt;a href=&#34;https://docs.microsoft.com/zh-cn/windows/win32/api/winternl/ns-winternl-_peb&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;PEB结构&lt;/a&gt;（Process Envirorment Block Structure），关于PEB会在后面进行系统的学习和测试练习，其中在context.Ebx的第8字节处便存放着ImageBase的信息。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-C&#34;&gt;nt!_PEB  
+   +0x000 InheritedAddressSpace : UChar
+   +0x001 ReadImageFileExecOptions : UChar
+   +0x002 BeingDebugged    : UChar
+   +0x003 SpareBool        : UChar
+   +0x004 Mutant           : Ptr32 Void
+   -&amp;gt; 0x008 ImageBaseAddress : Ptr32 Void
+   +0x00c Ldr              : Ptr32 _PEB_LDR_DATA
+   +0x010 ProcessParameters : Ptr32 _RTL_USER_PROCESS_PARAMETERS
+   +0x014 SubSystemData    : Ptr32 Void
+   +0x018 ProcessHeap      : Ptr32 Void
+   +0x01c FastPebLock      : Ptr32 _RTL_CRITICAL_SECTION
+   +0x020 FastPebLockRoutine : Ptr32 Void
+   +0x024 FastPebUnlockRoutine : Ptr32 Void
+   +0x028 EnvironmentUpdateCount : Uint4B
+   +0x02c KernelCallbackTable : Ptr32 Void
+   +0x030 SystemReserved   : [1] Uint4B
+   +0x034 AtlThunkSListPtr32 : Uint4B
+   +0x038 FreeList         : Ptr32 _PEB_FREE_BLOCK
+   +0x03c TlsExpansionCounter : Uint4B
+   +0x040 TlsBitmap        : Ptr32 Void
+   +0x044 TlsBitmapBits    : [2] Uint4B
+   +0x04c ReadOnlySharedMemoryBase : Ptr32 Void
+   +0x050 ReadOnlySharedMemoryHeap : Ptr32 Void
+   +0x054 ReadOnlyStaticServerData : Ptr32 Ptr32 Void
+   +0x058 AnsiCodePageData : Ptr32 Void
+   +0x05c OemCodePageData  : Ptr32 Void
+   +0x060 UnicodeCaseTableData : Ptr32 Void
+   +0x064 NumberOfProcessors : Uint4B
+   +0x068 NtGlobalFlag     : Uint4B
+   +0x070 CriticalSectionTimeout : _LARGE_INTEGER
+   +0x078 HeapSegmentReserve : Uint4B
+   +0x07c HeapSegmentCommit : Uint4B
+   +0x080 HeapDeCommitTotalFreeThreshold : Uint4B
+   +0x084 HeapDeCommitFreeBlockThreshold : Uint4B
+   +0x088 NumberOfHeaps    : Uint4B
+   +0x08c MaximumNumberOfHeaps : Uint4B
+   +0x090 ProcessHeaps     : Ptr32 Ptr32 Void
+   +0x094 GdiSharedHandleTable : Ptr32 Void
+   +0x098 ProcessStarterHelper : Ptr32 Void
+   +0x09c GdiDCAttributeList : Uint4B
+   +0x0a0 LoaderLock       : Ptr32 Void
+   +0x0a4 OSMajorVersion   : Uint4B
+   +0x0a8 OSMinorVersion   : Uint4B
+   +0x0ac OSBuildNumber    : Uint2B
+   +0x0ae OSCSDVersion     : Uint2B
+   +0x0b0 OSPlatformId     : Uint4B
+   +0x0b4 ImageSubsystem   : Uint4B
+   +0x0b8 ImageSubsystemMajorVersion : Uint4B
+   +0x0bc ImageSubsystemMinorVersion : Uint4B
+   +0x0c0 ImageProcessAffinityMask : Uint4B
+   +0x0c4 GdiHandleBuffer  : [34] Uint4B
+   +0x14c PostProcessInitRoutine : Ptr32     void 
+   +0x150 TlsExpansionBitmap : Ptr32 Void
+   +0x154 TlsExpansionBitmapBits : [32] Uint4B
+   +0x1d4 SessionId        : Uint4B
+   +0x1d8 AppCompatFlags   : _ULARGE_INTEGER
+   +0x1e0 AppCompatFlagsUser : _ULARGE_INTEGER
+   +0x1e8 pShimData        : Ptr32 Void
+   +0x1ec AppCompatInfo    : Ptr32 Void
+   +0x1f0 CSDVersion       : _UNICODE_STRING
+   +0x1f8 ActivationContextData : Ptr32 Void
+   +0x1fc ProcessAssemblyStorageMap : Ptr32 Void
+   +0x200 SystemDefaultActivationContextData : Ptr32 Void
+   +0x204 SystemAssemblyStorageMap : Ptr32 Void
+   +0x208 MinimumStackCommit : Uint4B
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;运行结果：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-md&#34;&gt;Entry Point(OA):4193be
+ImageBase:400000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;PETool查询自身PETool 1.0.0.5.exe的PE信息结果：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-md&#34;&gt;==========================================================================
+文件路径：&amp;quot;C:\PETool 1.0.0.5.exe&amp;quot;
+
+是否PE文件    ：是
+文件大小      ：208896 字节
+创建时间      ：2019.07.26 22:06:25
+修改时间      ：2012.07.29 22:11:32
+访问时间      ：2019.07.26 22:06:25
+运行平台      ：Win32 位
+PE文件头地址  ：0x00000100
+基地址        ：0x00400000
+入口点EP(RVA) ：0x000193BE
+入口点OEP(RAW)：0x000193BE
+入口点EP所在节：[.text] [1/4]
+入口点EP首字节：55 8B EC 6A FF 68 20 F7 
+区段数目      ：4 个
+链接器版本信息：6.0
+子系统        ：Windows 图形用户界面/图形接口子系统(Image runs in the Windows GUI subsystem.)
+==========================================================================
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;由上比较可见，程序运行的结果和我们用PE工具查询得到的结果一致。&lt;/p&gt;
+
+&lt;h2 id=&#34;0x06-问题&#34;&gt;0x06 问题&lt;/h2&gt;
+
+&lt;p&gt;在本次学习中遇到了一个疑问一直未得到解决，在测试0x05以挂起的形式创建进程的过程中，如果创建的程序为IE（或其他Windows自带的软件），在win7+（此处应为Windows vista后，NT6.0+）的系统中，CONTEXT结构便获取不到信息，程序能够正常运行起来。这一块一直想找个办法解决，但一直没有解决，很是挫败。还请路过的师傅们能够指点一二,万分感谢。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;此文为个人学习时所做笔记，如有错误，还请各位师傅不吝指点。&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
     
     <item>
       <title>线程学习记要</title>

@@ -316,11 +316,13 @@ PE文件头地址  ：0x00000100
 
 &lt;h2 id=&#34;0x06-问题&#34;&gt;0x06 问题&lt;/h2&gt;
 
-&lt;p&gt;在本次学习中遇到了一个疑问一直未得到解决，在测试0x05以挂起的形式创建进程的过程中，如果创建的程序为IE（或其他Windows自带的软件），在win7+（此处应为Windows vista后，NT6.0+）的系统中，CONTEXT结构便获取不到信息，程序能够正常运行起来。这一块一直想找个办法解决，但一直没有解决，很是挫败。还请路过的师傅们能够指点一二,万分感谢。&lt;/p&gt;
+&lt;p&gt;在本次学习中遇到了一个疑问一直未得到解决，在测试0x05以挂起的形式创建进程的过程中，如果创建的程序为IE（或其他Windows自带的软件），在win7+（此处应为Windows vista后，NT6.0+）的系统中，CONTEXT结构便获取不到信息，但程序能够正常运行起来。这一块一直想找个办法解决，但一直没有解决，很是挫败。还请路过的师傅们能够指点一二,万分感谢。&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;此文为个人学习时所做笔记，如有错误，还请各位师傅不吝指点。&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;感谢&lt;a href=&#34;https://www.52pojie.cn/home.php?mod=space&amp;amp;uid=212618&#34; rel=&#34;nofollow noreferrer&#34; target=&#34;_blank&#34;&gt;苏紫方璇&lt;/a&gt;版主的指点&lt;/strong&gt;&lt;/p&gt;
 </description>
     </item>
     
@@ -876,9 +878,9 @@ Practice makes perfect! 严于律己，希望能够慢慢补全自身的技能�
       <pubDate>Wed, 15 May 2019 22:53:12 +0800</pubDate>
       
       <guid>https://co3site.github.io/about/</guid>
-      <description>&lt;p&gt;co3site, 非科班野生计算机信息安全狗一枚。生活很仓促，想学的还很多。&lt;br /&gt;
-信息安全爱好者，二进制爱好者，痴迷各种科学知识，不过经常碰壁。&lt;br /&gt;
-工科理性思维，缺乏感性，轻微社恐。&lt;/p&gt;
+      <description>&lt;p&gt;co3site, 非科班野生CTFer。生活很仓促，想学的还很多。&lt;br /&gt;
+折腾过信息安全，折腾过二进制，折腾过信号与系统&amp;hellip;&amp;hellip;&lt;br /&gt;
+痴迷各种科学知识，不过经常碰壁。&lt;/p&gt;
 
 &lt;p&gt;coding: Python, C/C++&lt;br /&gt;
 keywords: RE, pentest, hacker&lt;/p&gt;
